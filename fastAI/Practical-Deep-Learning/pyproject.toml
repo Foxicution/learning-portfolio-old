@@ -10,6 +10,9 @@ python = "^3.10"
 nbdev = "^2.3.9"
 
 
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.20.2"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
