@@ -16,12 +16,5 @@ fn main() {
         day2_part2_solution(read_to_string("./input/2").unwrap().as_str())
     );
 
-    let input = "vJrwpWtwJgWrhcsFMMfFFhFp\n\
-    jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL\n\
-    PmmdzqPrVvPwwTWBwg\n\
-    wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn\n\
-    ttgJtRGJQctTZtZT\n\
-    CrZsJsPPZsGzwwsLwLmpwMDw";
-
     println!("Day 3 solution: {:?}", day_3(input));
 }
