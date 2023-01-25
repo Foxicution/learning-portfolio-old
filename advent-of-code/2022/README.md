@@ -1,4 +1,4 @@
-## Advent of code 2022 solutions in Rust
+# Advent of code 2022 solutions in Rust
 
 Hello. This is my solutions for Advent of code 2022 in Rust. I'm using this as a way to learn Rust, so the solutions are not necessarily the most efficient or idiomatic.
 
