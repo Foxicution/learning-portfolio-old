@@ -16,5 +16,5 @@ fn main() {
         day2_part2_solution(read_to_string("./input/2").unwrap().as_str())
     );
 
-    println!("Day 3 solution: {:?}", day_3(input));
+    println!("Day 3 solution: {:?}", day_3(read_to_string("./input/3").unwrap().as_str()));
 }
