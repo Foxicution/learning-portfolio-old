@@ -1,6 +1,6 @@
 // TODO: Clean up the implementation to only be inside of the trait
 pub trait Day1Solution {
-    fn day1_solution(&self) -> Option<usize>;
+    fn day1(&self) -> Option<usize>;
 }
 
 impl Day1Solution for str {
@@ -11,10 +11,10 @@ impl Day1Solution for str {
     /// ```
     /// use advent_of_code_2022_rust::day1::Day1Solution;
     /// let input = "1000\n2000\n\n3000\n4000\n6000";
-    /// assert_eq!(input.day1_solution(), Some(13000));
+    /// assert_eq!(input.day1(), Some(13000));
     /// ```
-    fn day1_solution(&self) -> Option<usize> {
-        day1_solution(self)
+    fn day1(&self) -> Option<usize> {
+        day1(self)
     }
 }
 
@@ -25,10 +25,10 @@ impl Day1Solution for str {
 /// ```
 /// use advent_of_code_2022_rust::day1::day1_solution;
 /// let input = "1000\n2000\n\n3000\n4000\n6000";
-/// let result = day1_solution(input);
+/// let result = day1(input);
 /// assert_eq!(result, Some(13000));
 /// ```
-pub fn day1_solution(input: &str) -> Option<usize> {
+pub fn day1(input: &str) -> Option<usize> {
     input
         .split("\n\n")
         .map(|group| {
@@ -42,10 +42,10 @@ pub fn day1_solution(input: &str) -> Option<usize> {
 
 #[cfg(test)]
 mod tests {
-    use super::{day1_solution, Day1Solution};
+    use super::{day1, Day1Solution};
 
     #[test]
-    fn test_day1_solution() {
+    fn test_day1() {
         let input = "1000\n\
             2000\n\
             3000\n\n\
@@ -57,7 +57,7 @@ mod tests {
             9000\n\n\
             10000";
 
-        assert_eq!(day1_solution(input), Some(24000));
+        assert_eq!(day1(input), Some(24000));
     }
 
     #[test]
@@ -73,6 +73,6 @@ mod tests {
             9000\n\n\
             10000";
 
-        assert_eq!(input.day1_solution(), Some(24000));
+        assert_eq!(input.day1(), Some(24000));
     }
 }

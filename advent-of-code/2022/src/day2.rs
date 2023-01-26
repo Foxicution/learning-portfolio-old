@@ -10,10 +10,10 @@
 /// let input = "A Y\n\
 /// B X\n\
 /// C Z";
-/// let result = day2_solution(input);
+/// let result = day2(input);
 /// assert_eq!(result, 15);
 /// ```
-pub fn day2_solution(input: &str) -> i32 {
+pub fn day2(input: &str) -> i32 {
     input
         .split("\n")
         .map(|line| match line.split_once(" ").unwrap_or(("", "")) {
@@ -31,7 +31,7 @@ pub fn day2_solution(input: &str) -> i32 {
         .sum()
 }
 
-pub fn day2_part2_solution(input: &str) -> i32 {
+pub fn day2_part2(input: &str) -> i32 {
     input
         .split("\n")
         .map(|line| match line.split_once(" ").unwrap_or(("", "")) {
@@ -51,14 +51,14 @@ pub fn day2_part2_solution(input: &str) -> i32 {
 
 #[cfg(test)]
 mod tests {
-    use super::day2_solution;
+    use super::day2;
 
     #[test]
-    fn test_day2_solution() {
+    fn test_day2() {
         let input = "A Y\n\
             B X\n\
             C Z";
 
-        assert_eq!(day2_solution(input), 15);
+        assert_eq!(day2(input), 15);
     }
 }
