@@ -4,7 +4,7 @@ use advent_of_code_2022_rust::{
     day1::Day1Solution,
     day2::{day2, day2_part2},
     day3::{day3, day3_part2},
-    day4::day4,
+    day4::{day4, day4_part2},
 };
 
 use std::fs::read_to_string;
@@ -32,5 +32,9 @@ fn main() {
 
     let day4_in = read_to_string("./input/4").unwrap();
 
-    println!("Day 4 solution: {:?}", day4(day4_in.as_str()));
+    println!(
+        "Day 4 solution: {:?}, part 2 {}",
+        day4(day4_in.as_str()),
+        day4_part2(day4_in.as_str())
+    );
 }
