@@ -6,7 +6,7 @@
 /// Finally it uses a match statement to determine the result of a match
 /// and returns the sum of all the results
 /// ```
-/// use advent_of_code_2022_rust::day2::day2_solution;
+/// use advent_of_code_2022_rust::day2::day2;
 /// let input = "A Y\n\
 /// B X\n\
 /// C Z";

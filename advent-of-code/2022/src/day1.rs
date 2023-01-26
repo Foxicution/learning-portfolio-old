@@ -23,7 +23,7 @@ impl Day1Solution for str {
 /// Then it splits each group into items and parses them into usize
 /// Then it sums the items in each group and returns the max
 /// ```
-/// use advent_of_code_2022_rust::day1::day1_solution;
+/// use advent_of_code_2022_rust::day1::day1;
 /// let input = "1000\n2000\n\n3000\n4000\n6000";
 /// let result = day1(input);
 /// assert_eq!(result, Some(13000));
