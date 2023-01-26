@@ -1,6 +1,8 @@
 // The only thing I don't like is we can't see what we import explicitly
+
 use advent_of_code_2022_rust::{
-    day1::Day1Solution, day2::day2_part2_solution, day2::day2_solution, day3::day_3,
+    day1::Day1Solution, day2::day2_part2, day2::day2, day3::day3_part2,
+    day3::day3,
 };
 
 use std::fs::read_to_string;
@@ -8,13 +10,21 @@ use std::fs::read_to_string;
 fn main() {
     println!(
         "Day 1 solution: {:?}",
-        read_to_string("./input/1").unwrap().day1_solution()
-    );
-    println!(
-        "Day 2 solution: {:?}, part 2: {:?}",
-        day2_solution(read_to_string("./input/2").unwrap().as_str()),
-        day2_part2_solution(read_to_string("./input/2").unwrap().as_str())
+        read_to_string("./input/1").unwrap().day1()
     );
 
-    println!("Day 3 solution: {:?}", day_3(read_to_string("./input/3").unwrap().as_str()));
+    let day2_in = read_to_string("./input/2").unwrap();
+    println!(
+        "Day 2 solution: {:?}, part 2: {:?}",
+        day2(day2_in.as_str()),
+        day2_part2(day2_in.as_str())
+    );
+
+    
+    let day3_in = read_to_string("./input/3").unwrap();
+    println!(
+        "Day 3 solution: {:?}, part 2: {:?}",
+        day3(day3_in.as_str()),
+        day3_part2(day3_in.as_str())
+    );
 }
