@@ -55,7 +55,7 @@ pub fn day3(input: &str) -> i32 {
 /// ```
 pub fn day3_part2(input: &str) -> i32 {
     input.lines().collect::<Vec<_>>().chunks(3).map(|chunk| {
-        chunk[0].chars().find(|&c| chunk[0].contains(c) && chunk[1].contains(c)).map(
+        chunk[0].chars().find(|&c| chunk[1].contains(c) && chunk[2].contains(c)).map(
             |c| match c {
                 'a'..='z' => (c as u8 - b'a' + 1) as i32,
                 'A'..='Z' => (c as u8 - b'A' + 27) as i32,

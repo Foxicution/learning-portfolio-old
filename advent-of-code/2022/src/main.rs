@@ -1,8 +1,7 @@
 // The only thing I don't like is we can't see what we import explicitly
 
 use advent_of_code_2022_rust::{
-    day1::Day1Solution, day2::day2_part2, day2::day2, day3::day3_part2,
-    day3::day3,
+    day1::Day1Solution, day2::day2, day2::day2_part2, day3::day3, day3::day3_part2,
 };
 
 use std::fs::read_to_string;
@@ -20,8 +19,8 @@ fn main() {
         day2_part2(day2_in.as_str())
     );
 
-    
     let day3_in = read_to_string("./input/3").unwrap();
+
     println!(
         "Day 3 solution: {:?}, part 2: {:?}",
         day3(day3_in.as_str()),
