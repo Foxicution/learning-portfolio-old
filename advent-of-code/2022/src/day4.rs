@@ -1,9 +1,9 @@
 /// Processes the input into 4 numbers. Start and end for 2 elfs.
 /// Then it applies the function to the numbers and returns the count.
 /// The function contains the logic for the solution.
-fn processing<F>(input: &str, f: F) -> usize
+fn processing<F>(input: &str, mut f: F) -> usize
 where
-    F: Fn(usize, usize, usize, usize) -> bool,
+    F: FnMut(usize, usize, usize, usize) -> bool,
 {
     input
         .lines()
@@ -76,6 +76,7 @@ mod tests {
 
     use super::processing;
 
+    //TODO: Learn about rust borrowing and why we need processing to be an FnMut and not Fn
     #[test]
     fn test_processing() {
         let input = "1-2,3-4\n\
@@ -86,10 +87,15 @@ mod tests {
 
         fn f(a1: usize, a2: usize, b1: usize, b2: usize, cache: &mut [RangeInclusive<usize>; 1]) -> bool
         {
-            let ta1 = cache[0].start();
-            println!("ta1: {}", ta1);
-
-            true
+            let ta1 = cache[0].next().unwrap();
+            let ta2 = cache[0].next().unwrap();
+            let tb1 = cache[0].next().unwrap();
+            let tb2 = cache[0].next().unwrap();
+            if a1 == ta1 && a2 == ta2 && b1 == tb1 && b2 == tb2 {
+                true
+            } else {
+                false
+            }
         }
 
         assert_eq!(
