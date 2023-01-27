@@ -1,3 +1,28 @@
+/// Processes the input into 4 numbers. Start and end for 2 elfs.
+/// Then it applies the function to the numbers and returns the count.
+/// The function contains the logic for the solution.
+fn processing<F>(input: &str, f: F) -> usize
+where
+    F: Fn(usize, usize, usize, usize) -> bool,
+{
+    input
+        .lines()
+        .filter(|line| {
+            match line
+                .split(",")
+                .flat_map(|elf| elf.split("-").map(|num| num.parse::<usize>().unwrap()))
+                .collect::<Vec<_>>()
+                .chunks_exact(4)
+                .next()
+                .unwrap()
+            {
+                &[a1, a2, b1, b2] => f(a1, a2, b1, b2),
+                _ => false,
+            }
+        })
+        .count()
+}
+
 /// The solution filters elements in each line only keeping the numbers.
 /// Then it splits the numbers into chunks of 4 (start and end for 2 entities).
 /// Then it compares the start and end entities searching if one is inside the other.
@@ -13,32 +38,14 @@
 /// assert_eq!(day4(input), 2);
 /// ```
 pub fn day4(input: &str) -> usize {
-    input
-        .lines()
-        .filter(|line| {
-            match line
-                .split(",")
-                .flat_map(|elf| elf.split("-").map(|num| num.parse::<usize>().unwrap()))
-                .collect::<Vec<_>>()
-                .chunks_exact(4)
-                .next()
-                .unwrap()
-            {
-                &[a1, a2, b1, b2] => {
-                    if a1 >= b1 && a2 <= b2 || a1 <= b1 && a2 >= b2 {
-                        true
-                    } else {
-                        false
-                    }
-                }
-                _ => false,
-            }
-        })
-        .count()
+    processing(input, |a1, a2, b1, b2| {
+        if a1 >= b1 && a2 <= b2 || a1 <= b1 && a2 >= b2 {
+            true
+        } else {
+            false
+        }
+    })
 }
-
-// 1-3,5-7
-// 2-4,6-8
 
 /// The solution filters elements in each line only keeping the numbers.
 /// Then it splits the numbers into chunks of 4 (start and end for 2 entities).
@@ -54,26 +61,11 @@ pub fn day4(input: &str) -> usize {
 /// 2-6,4-8";
 /// assert_eq!(day4_part2(input), 4);
 pub fn day4_part2(input: &str) -> usize {
-    input
-        .lines()
-        .filter(|line| {
-            match line
-                .split(",")
-                .flat_map(|elf| elf.split("-").map(|num| num.parse::<usize>().unwrap()))
-                .collect::<Vec<_>>()
-                .chunks_exact(4)
-                .next()
-                .unwrap()
-            {
-                &[a1, a2, b1, b2] => {
-                    if (a1 > b2 && a2 > b2) || (a1 < b2 && a2 < b1) {
-                        false
-                    } else {
-                        true
-                    }
-                }
-                _ => false,
-            }
-        })
-        .count()
+    processing(input, |a1, a2, b1, b2| {
+        if a1 > b2 && a2 > b2 || a1 < b2 && a2 < b1 {
+            false
+        } else {
+            true
+        }
+    })
 }
