@@ -69,3 +69,32 @@ pub fn day4_part2(input: &str) -> usize {
         }
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use std::ops::RangeInclusive;
+
+    use super::processing;
+
+    #[test]
+    fn test_processing() {
+        let input = "1-2,3-4\n\
+            5-6,7-8\n\
+            9-10,11-12";
+
+        let mut a: [RangeInclusive<usize>; 1] = [1..=12];
+
+        fn f(a1: usize, a2: usize, b1: usize, b2: usize, cache: &mut [RangeInclusive<usize>; 1]) -> bool
+        {
+            let ta1 = cache[0].start();
+            println!("ta1: {}", ta1);
+
+            true
+        }
+
+        assert_eq!(
+            processing(input, |a1, a2, b1, b2| f(a1, a2, b1, b2, &mut a)),
+            3
+        );
+    }
+}
