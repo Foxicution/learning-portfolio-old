@@ -1,0 +1,13 @@
+%matlab pca funkcijos pvz
+[COEFF,SCORE,latent,tsquare] = princomp(x)
+figure(1)
+plot(SCORE(:,1),SCORE(:,2),'ro')
+figure(2)
+biplot(COEFF(:,1:2),'VarLabels', {'par1' 'par2' 'par3' 'par4' 'par5'})% pvz., yra 5 atributai
+
+%R pca funkcijos pvz
+library(stats)
+pc.cr <- princomp(d_xx, cor = TRUE)
+plot(pc.cr$scores[,1], pc.cr$scores[,2], pch=18)
+op = par(cex.main=0.53, cex.axis=0.53, cex.lab=0.53, cex=0.83)
+biplot(pc.cr) 

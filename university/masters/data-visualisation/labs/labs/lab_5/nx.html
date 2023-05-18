@@ -1,0 +1,349 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 600px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"group": "genre", "id": "Comedygenre", "label": "Comedy", "physics": false, "shape": "dot", "size": 10, "title": "Comedy", "x": 500.0, "y": 7.071737644543354e-06}, {"group": "genre", "id": "Supernaturalgenre", "label": "Supernatural", "physics": false, "shape": "dot", "size": 10, "title": "Supernatural", "x": 497.1674084147405, "y": -53.146736180683405}, {"group": "genre", "id": "Romancegenre", "label": "Romance", "physics": false, "shape": "dot", "size": 10, "title": "Romance", "x": 488.70170095843537, "y": -105.6913085971307}, {"group": "genre", "id": "Shounengenre", "label": "Shounen", "physics": false, "shape": "dot", "size": 10, "title": "Shounen", "x": 474.69881130859807, "y": -157.03835662300088}, {"group": "genre", "id": "Parodygenre", "label": "Parody", "physics": false, "shape": "dot", "size": 10, "title": "Parody", "x": 455.3173772301881, "y": -206.60608676062398}, {"group": "genre", "id": "Schoolgenre", "label": "School", "physics": false, "shape": "dot", "size": 10, "title": "School", "x": 430.77704184320373, "y": -253.83290403669622}, {"group": "genre", "id": "Magicgenre", "label": "Magic", "physics": false, "shape": "dot", "size": 10, "title": "Magic", "x": 401.3558310182644, "y": -298.1836779406762}, {"group": "genre", "id": "Shoujogenre", "label": "Shoujo", "physics": false, "shape": "dot", "size": 10, "title": "Shoujo", "x": 367.38708373734846, "y": -339.1559115056315}, {"group": "genre", "id": "Dramagenre", "label": "Drama", "physics": false, "shape": "dot", "size": 10, "title": "Drama", "x": 329.25569700110447, "y": -376.28540374959545}, {"group": "genre", "id": "Fantasygenre", "label": "Fantasy", "physics": false, "shape": "dot", "size": 10, "title": "Fantasy", "x": 287.3936852827339, "y": -409.15137567511124}, {"group": "genre", "id": "Kidsgenre", "label": "Kids", "physics": false, "shape": "dot", "size": 10, "title": "Kids", "x": 242.27542705748422, "y": -437.3815366641301}, {"group": "genre", "id": "Actiongenre", "label": "Action", "physics": false, "shape": "dot", "size": 10, "title": "Action", "x": 194.41209176826075, "y": -460.6559885823154}, {"group": "genre", "id": "Musicgenre", "label": "Music", "physics": false, "shape": "dot", "size": 10, "title": "Music", "x": 144.34597738426964, "y": -478.71101067405425}, {"group": "genre", "id": "Slice of Lifegenre", "label": "Slice of Life", "physics": false, "shape": "dot", "size": 10, "title": "Slice of Life", "x": 92.64436367191368, "y": -491.3420695970742}, {"group": "genre", "id": "Joseigenre", "label": "Josei", "physics": false, "shape": "dot", "size": 10, "title": "Josei", "x": 39.893052541296974, "y": -498.4059949920168}, {"group": "genre", "id": "Haremgenre", "label": "Harem", "physics": false, "shape": "dot", "size": 10, "title": "Harem", "x": -13.310261107981857, "y": -499.82279742413635}, {"group": "genre", "id": "Shounen Aigenre", "label": "Shounen Ai", "physics": false, "shape": "dot", "size": 10, "title": "Shounen Ai", "x": -66.36276382736087, "y": -495.57641344137335}, {"group": "genre", "id": "Adventuregenre", "label": "Adventure", "physics": false, "shape": "dot", "size": 10, "title": "Adventure", "x": -118.66335207655628, "y": -485.7149439929376}, {"group": "genre", "id": "Super Powergenre", "label": "Super Power", "physics": false, "shape": "dot", "size": 10, "title": "Super Power", "x": -169.61942342790024, "y": -470.35014778981883}, {"group": "genre", "id": "Sci-Figenre", "label": "Sci-Fi", "physics": false, "shape": "dot", "size": 10, "title": "Sci-Fi", "x": -218.65366218274312, "y": -449.65607039793167}, {"group": "genre", "id": "Ecchigenre", "label": "Ecchi", "physics": false, "shape": "dot", "size": 10, "title": "Ecchi", "x": -265.21046363469014, "y": -423.8672262964167}, {"group": "genre", "id": "Seinengenre", "label": "Seinen", "physics": false, "shape": "dot", "size": 10, "title": "Seinen", "x": -308.7623266678702, "y": -393.27576765696244}, {"group": "genre", "id": "Martial Artsgenre", "label": "Martial Arts", "physics": false, "shape": "dot", "size": 10, "title": "Martial Arts", "x": -348.81578441919874, "y": -358.22835509989727}, {"group": "genre", "id": "Gamegenre", "label": "Game", "physics": false, "shape": "dot", "size": 10, "title": "Game", "x": -384.9169773127661, "y": -319.1221045782712}, {"group": "genre", "id": "Sportsgenre", "label": "Sports", "physics": false, "shape": "dot", "size": 10, "title": "Sports", "x": -416.6569578733189, "y": -276.40005742477007}, {"group": "genre", "id": "Demonsgenre", "label": "Demons", "physics": false, "shape": "dot", "size": 10, "title": "Demons", "x": -443.676041865408, "y": -230.5462629684324}, {"group": "genre", "id": "Historicalgenre", "label": "Historical", "physics": false, "shape": "dot", "size": 10, "title": "Historical", "x": -465.6680998278906, "y": -182.08029490722973}, {"group": "genre", "id": "Horrorgenre", "label": "Horror", "physics": false, "shape": "dot", "size": 10, "title": "Horror", "x": -482.38395453874404, "y": -131.55129084348093}, {"group": "genre", "id": "Mysterygenre", "label": "Mystery", "physics": false, "shape": "dot", "size": 10, "title": "Mystery", "x": -493.63418243342164, "y": -79.53175340068232}, {"group": "genre", "id": "Samuraigenre", "label": "Samurai", "physics": false, "shape": "dot", "size": 10, "title": "Samurai", "x": -499.29137858139524, "y": -26.611098020593353}, {"group": "genre", "id": "Hentaigenre", "label": "Hentai", "physics": false, "shape": "dot", "size": 10, "title": "Hentai", "x": -499.29137858139524, "y": 26.611078636455346}, {"group": "genre", "id": "Spacegenre", "label": "Space", "physics": false, "shape": "dot", "size": 10, "title": "Space", "x": -493.6342122357446, "y": 79.53173774183468}, {"group": "genre", "id": "Mechagenre", "label": "Mecha", "physics": false, "shape": "dot", "size": 10, "title": "Mecha", "x": -482.38395453874404, "y": 131.5512751846333}, {"group": "genre", "id": "Psychologicalgenre", "label": "Psychological", "physics": false, "shape": "dot", "size": 10, "title": "Psychological", "x": -465.6680998278906, "y": 182.0802792483821}, {"group": "genre", "id": "Policegenre", "label": "Police", "physics": false, "shape": "dot", "size": 10, "title": "Police", "x": -443.676071667731, "y": 230.54624730958477}, {"group": "genre", "id": "Vampiregenre", "label": "Vampire", "physics": false, "shape": "dot", "size": 10, "title": "Vampire", "x": -416.65698767564186, "y": 276.4000119635995}, {"group": "genre", "id": "Militarygenre", "label": "Military", "physics": false, "shape": "dot", "size": 10, "title": "Military", "x": -384.91703691741196, "y": 319.12208891942356}, {"group": "genre", "id": "Thrillergenre", "label": "Thriller", "physics": false, "shape": "dot", "size": 10, "title": "Thriller", "x": -348.81578441919874, "y": 358.2283692433726}, {"group": "genre", "id": "Yaoigenre", "label": "Yaoi", "physics": false, "shape": "dot", "size": 10, "title": "Yaoi", "x": -308.76235647019314, "y": 393.27578180043776}, {"group": "genre", "id": "Carsgenre", "label": "Cars", "physics": false, "shape": "dot", "size": 10, "title": "Cars", "x": -265.2104040300443, "y": 423.86727024221494}, {"group": "genre", "id": "Shoujo Aigenre", "label": "Shoujo Ai", "physics": false, "shape": "dot", "size": 10, "title": "Shoujo Ai", "x": -218.65369198506605, "y": 449.656054739084}, {"group": "genre", "id": "Dementiagenre", "label": "Dementia", "physics": false, "shape": "dot", "size": 10, "title": "Dementia", "x": -169.6193638232544, "y": 470.3501917356171}, {"group": "genre", "id": "Yurigenre", "label": "Yuri", "physics": false, "shape": "dot", "size": 10, "title": "Yuri", "x": -118.6633818788792, "y": 485.7149581364129}, {"group": "source", "id": "Mangasource", "label": "Manga", "physics": false, "shape": "dot", "size": 10, "title": "Manga", "x": -66.36267442039208, "y": 495.57645738717156}, {"group": "source", "id": "Originalsource", "label": "Original", "physics": false, "shape": "dot", "size": 10, "title": "Original", "x": -13.310293704272562, "y": 499.8228115676117}, {"group": "source", "id": "Light novelsource", "label": "Light novel", "physics": false, "shape": "dot", "size": 10, "title": "Light novel", "x": 39.893141948265765, "y": 498.4060091354921}, {"group": "source", "id": "4-koma mangasource", "label": "4-koma manga", "physics": false, "shape": "dot", "size": 10, "title": "4-koma manga", "x": 92.64433386959075, "y": 491.3420837405495}, {"group": "source", "id": "Novelsource", "label": "Novel", "physics": false, "shape": "dot", "size": 10, "title": "Novel", "x": 144.34605189007695, "y": 478.7109950152066}, {"group": "source", "id": "Visual novelsource", "label": "Visual novel", "physics": false, "shape": "dot", "size": 10, "title": "Visual novel", "x": 194.41204706477635, "y": 460.6560325281136}, {"group": "source", "id": "Unknownsource", "label": "Unknown", "physics": false, "shape": "dot", "size": 10, "title": "Unknown", "x": 242.27550156329156, "y": 437.38152100528254}, {"group": "source", "id": "Othersource", "label": "Other", "physics": false, "shape": "dot", "size": 10, "title": "Other", "x": 287.3936852827339, "y": 409.15141962090945}, {"group": "source", "id": "Musicsource", "label": "Music", "physics": false, "shape": "dot", "size": 10, "title": "Music", "x": 329.2557566057503, "y": 376.28532848610195}, {"group": "source", "id": "Gamesource", "label": "Game", "physics": false, "shape": "dot", "size": 10, "title": "Game", "x": 367.38705393502556, "y": 339.15595545142975}, {"group": "source", "id": "Picture booksource", "label": "Picture book", "physics": false, "shape": "dot", "size": 10, "title": "Picture book", "x": 401.3558608205873, "y": 298.1836026771827}, {"group": "source", "id": "Card gamesource", "label": "Card game", "physics": false, "shape": "dot", "size": 10, "title": "Card game", "x": 430.7770120408808, "y": 253.83294798249446}, {"group": "source", "id": "Web mangasource", "label": "Web manga", "physics": false, "shape": "dot", "size": 10, "title": "Web manga", "x": 455.3174368348339, "y": 206.60602639829196}, {"group": "source", "id": "Booksource", "label": "Book", "physics": false, "shape": "dot", "size": 10, "title": "Book", "x": 474.6987815062751, "y": 157.03838566763764}, {"group": "source", "id": "Radiosource", "label": "Radio", "physics": false, "shape": "dot", "size": 10, "title": "Radio", "x": 488.70170095843537, "y": 105.6912333336372}, {"group": "source", "id": "Digital mangasource", "label": "Digital manga", "physics": false, "shape": "dot", "size": 10, "title": "Digital manga", "x": 497.1674084147405, "y": 53.146783851771985}]);
+                  edges = new vis.DataSet([{"from": "Horrorgenre", "to": "Light novelsource"}, {"from": "Kidsgenre", "to": "Picture booksource"}, {"from": "Actiongenre", "to": "Visual novelsource"}, {"from": "Supernaturalgenre", "to": "Picture booksource"}, {"from": "Sci-Figenre", "to": "Card gamesource"}, {"from": "Vampiregenre", "to": "Novelsource"}, {"from": "Super Powergenre", "to": "Card gamesource"}, {"from": "Spacegenre", "to": "Originalsource"}, {"from": "Musicgenre", "to": "Radiosource"}, {"from": "Romancegenre", "to": "Booksource"}, {"from": "Romancegenre", "to": "Web mangasource"}, {"from": "Thrillergenre", "to": "Web mangasource"}, {"from": "Vampiregenre", "to": "Gamesource"}, {"from": "Schoolgenre", "to": "Booksource"}, {"from": "Schoolgenre", "to": "Web mangasource"}, {"from": "Historicalgenre", "to": "Card gamesource"}, {"from": "Historicalgenre", "to": "Light novelsource"}, {"from": "Romancegenre", "to": "Othersource"}, {"from": "Thrillergenre", "to": "Othersource"}, {"from": "Actiongenre", "to": "Originalsource"}, {"from": "Schoolgenre", "to": "Othersource"}, {"from": "Yaoigenre", "to": "Light novelsource"}, {"from": "Ecchigenre", "to": "Light novelsource"}, {"from": "Seinengenre", "to": "4-koma mangasource"}, {"from": "Sci-Figenre", "to": "Novelsource"}, {"from": "Super Powergenre", "to": "Novelsource"}, {"from": "Fantasygenre", "to": "Radiosource"}, {"from": "Spacegenre", "to": "Radiosource"}, {"from": "Sci-Figenre", "to": "Gamesource"}, {"from": "Kidsgenre", "to": "Mangasource"}, {"from": "Adventuregenre", "to": "Card gamesource"}, {"from": "Super Powergenre", "to": "Gamesource"}, {"from": "Militarygenre", "to": "Novelsource"}, {"from": "Psychologicalgenre", "to": "Web mangasource"}, {"from": "Adventuregenre", "to": "Light novelsource"}, {"from": "Kidsgenre", "to": "Unknownsource"}, {"from": "Supernaturalgenre", "to": "Mangasource"}, {"from": "Historicalgenre", "to": "Gamesource"}, {"from": "Actiongenre", "to": "Radiosource"}, {"from": "Policegenre", "to": "Mangasource"}, {"from": "Magicgenre", "to": "Card gamesource"}, {"from": "Supernaturalgenre", "to": "Unknownsource"}, {"from": "Psychologicalgenre", "to": "Othersource"}, {"from": "Policegenre", "to": "Unknownsource"}, {"from": "Magicgenre", "to": "Light novelsource"}, {"from": "Hentaigenre", "to": "Unknownsource"}, {"from": "Slice of Lifegenre", "to": "Card gamesource"}, {"from": "Militarygenre", "to": "Mangasource"}, {"from": "Demonsgenre", "to": "Card gamesource"}, {"from": "Shounen Aigenre", "to": "Novelsource"}, {"from": "Policegenre", "to": "4-koma mangasource"}, {"from": "Slice of Lifegenre", "to": "Light novelsource"}, {"from": "Comedygenre", "to": "Web mangasource"}, {"from": "Comedygenre", "to": "Booksource"}, {"from": "Demonsgenre", "to": "Light novelsource"}, {"from": "Shounen Aigenre", "to": "Gamesource"}, {"from": "Adventuregenre", "to": "Gamesource"}, {"from": "Dramagenre", "to": "Light novelsource"}, {"from": "Sci-Figenre", "to": "4-koma mangasource"}, {"from": "Super Powergenre", "to": "4-koma mangasource"}, {"from": "Comedygenre", "to": "Othersource"}, {"from": "Supernaturalgenre", "to": "Visual novelsource"}, {"from": "Magicgenre", "to": "Novelsource"}, {"from": "Militarygenre", "to": "4-koma mangasource"}, {"from": "Magicgenre", "to": "Gamesource"}, {"from": "Hentaigenre", "to": "Visual novelsource"}, {"from": "Shounen Aigenre", "to": "Mangasource"}, {"from": "Parodygenre", "to": "Unknownsource"}, {"from": "Demonsgenre", "to": "Novelsource"}, {"from": "Kidsgenre", "to": "Originalsource"}, {"from": "Joseigenre", "to": "Visual novelsource"}, {"from": "Martial Artsgenre", "to": "Mangasource"}, {"from": "Mysterygenre", "to": "Picture booksource"}, {"from": "Vampiregenre", "to": "Othersource"}, {"from": "Slice of Lifegenre", "to": "Gamesource"}, {"from": "Horrorgenre", "to": "Booksource"}, {"from": "Horrorgenre", "to": "Web mangasource"}, {"from": "Demonsgenre", "to": "Gamesource"}, {"from": "Carsgenre", "to": "Gamesource"}, {"from": "Sportsgenre", "to": "Light novelsource"}, {"from": "Supernaturalgenre", "to": "Originalsource"}, {"from": "Martial Artsgenre", "to": "Unknownsource"}, {"from": "Policegenre", "to": "Originalsource"}, {"from": "Horrorgenre", "to": "Othersource"}, {"from": "Schoolgenre", "to": "Card gamesource"}, {"from": "Hentaigenre", "to": "Originalsource"}, {"from": "Dramagenre", "to": "Musicsource"}, {"from": "Parodygenre", "to": "Visual novelsource"}, {"from": "Fantasygenre", "to": "Picture booksource"}, {"from": "Kidsgenre", "to": "Radiosource"}, {"from": "Mechagenre", "to": "Mangasource"}, {"from": "Historicalgenre", "to": "Web mangasource"}, {"from": "Shoujo Aigenre", "to": "Visual novelsource"}, {"from": "Dementiagenre", "to": "Mangasource"}, {"from": "Martial Artsgenre", "to": "Visual novelsource"}, {"from": "Mechagenre", "to": "Unknownsource"}, {"from": "Ecchigenre", "to": "Booksource"}, {"from": "Ecchigenre", "to": "Web mangasource"}, {"from": "Historicalgenre", "to": "Othersource"}, {"from": "Dementiagenre", "to": "Unknownsource"}, {"from": "Romancegenre", "to": "Novelsource"}, {"from": "Thrillergenre", "to": "Novelsource"}, {"from": "Schoolgenre", "to": "Novelsource"}, {"from": "Psychologicalgenre", "to": "Card gamesource"}, {"from": "Romancegenre", "to": "Gamesource"}, {"from": "Parodygenre", "to": "Originalsource"}, {"from": "Mechagenre", "to": "4-koma mangasource"}, {"from": "Ecchigenre", "to": "Othersource"}, {"from": "Schoolgenre", "to": "Gamesource"}, {"from": "Mysterygenre", "to": "Unknownsource"}, {"from": "Dementiagenre", "to": "4-koma mangasource"}, {"from": "Yurigenre", "to": "Visual novelsource"}, {"from": "Militarygenre", "to": "Radiosource"}, {"from": "Shoujo Aigenre", "to": "Originalsource"}, {"from": "Adventuregenre", "to": "Booksource"}, {"from": "Adventuregenre", "to": "Web mangasource"}, {"from": "Martial Artsgenre", "to": "Originalsource"}, {"from": "Joseigenre", "to": "Web mangasource"}, {"from": "Romancegenre", "to": "Mangasource"}, {"from": "Musicgenre", "to": "Musicsource"}, {"from": "Adventuregenre", "to": "Othersource"}, {"from": "Thrillergenre", "to": "Mangasource"}, {"from": "Haremgenre", "to": "Mangasource"}, {"from": "Comedygenre", "to": "Card gamesource"}, {"from": "Psychologicalgenre", "to": "Novelsource"}, {"from": "Yurigenre", "to": "Originalsource"}, {"from": "Samuraigenre", "to": "Unknownsource"}, {"from": "Mysterygenre", "to": "Visual novelsource"}, {"from": "Haremgenre", "to": "Unknownsource"}, {"from": "Psychologicalgenre", "to": "Gamesource"}, {"from": "Slice of Lifegenre", "to": "Web mangasource"}, {"from": "Slice of Lifegenre", "to": "Booksource"}, {"from": "Romancegenre", "to": "4-koma mangasource"}, {"from": "Thrillergenre", "to": "4-koma mangasource"}, {"from": "Dramagenre", "to": "Booksource"}, {"from": "Schoolgenre", "to": "4-koma mangasource"}, {"from": "Mechagenre", "to": "Originalsource"}, {"from": "Dramagenre", "to": "Web mangasource"}, {"from": "Slice of Lifegenre", "to": "Othersource"}, {"from": "Dementiagenre", "to": "Originalsource"}, {"from": "Spacegenre", "to": "Musicsource"}, {"from": "Fantasygenre", "to": "Musicsource"}, {"from": "Dramagenre", "to": "Othersource"}, {"from": "Samuraigenre", "to": "Musicsource"}, {"from": "Shounengenre", "to": "Mangasource"}, {"from": "Fantasygenre", "to": "Visual novelsource"}, {"from": "Psychologicalgenre", "to": "Mangasource"}, {"from": "Spacegenre", "to": "Visual novelsource"}, {"from": "Romancegenre", "to": "Digital mangasource"}, {"from": "Mysterygenre", "to": "Originalsource"}, {"from": "Comedygenre", "to": "Novelsource"}, {"from": "Schoolgenre", "to": "Digital mangasource"}, {"from": "Gamegenre", "to": "Web mangasource"}, {"from": "Samuraigenre", "to": "Visual novelsource"}, {"from": "Haremgenre", "to": "Visual novelsource"}, {"from": "Actiongenre", "to": "Musicsource"}, {"from": "Shounengenre", "to": "Unknownsource"}, {"from": "Gamegenre", "to": "Othersource"}, {"from": "Sportsgenre", "to": "Booksource"}, {"from": "Sportsgenre", "to": "Web mangasource"}, {"from": "Mechagenre", "to": "Radiosource"}, {"from": "Shounengenre", "to": "4-koma mangasource"}, {"from": "Shoujogenre", "to": "Mangasource"}, {"from": "Fantasygenre", "to": "Originalsource"}, {"from": "Sportsgenre", "to": "Othersource"}, {"from": "Comedygenre", "to": "Mangasource"}, {"from": "Seinengenre", "to": "Mangasource"}, {"from": "Shoujogenre", "to": "Unknownsource"}, {"from": "Samuraigenre", "to": "Originalsource"}, {"from": "Haremgenre", "to": "Originalsource"}, {"from": "Sci-Figenre", "to": "Picture booksource"}, {"from": "Horrorgenre", "to": "Novelsource"}, {"from": "Musicgenre", "to": "Booksource"}, {"from": "Seinengenre", "to": "Unknownsource"}, {"from": "Musicgenre", "to": "Web mangasource"}, {"from": "Ecchigenre", "to": "Card gamesource"}, {"from": "Horrorgenre", "to": "Gamesource"}, {"from": "Shoujogenre", "to": "4-koma mangasource"}, {"from": "Musicgenre", "to": "Othersource"}, {"from": "Seinengenre", "to": "Gamesource"}, {"from": "Comedygenre", "to": "4-koma mangasource"}, {"from": "Vampiregenre", "to": "Mangasource"}, {"from": "Vampiregenre", "to": "Unknownsource"}, {"from": "Horrorgenre", "to": "Mangasource"}, {"from": "Shounengenre", "to": "Originalsource"}, {"from": "Hentaigenre", "to": "Light novelsource"}, {"from": "Historicalgenre", "to": "Novelsource"}, {"from": "Seinengenre", "to": "Visual novelsource"}, {"from": "Spacegenre", "to": "Booksource"}, {"from": "Spacegenre", "to": "Web mangasource"}, {"from": "Comedygenre", "to": "Digital mangasource"}, {"from": "Vampiregenre", "to": "4-koma mangasource"}, {"from": "Yaoigenre", "to": "Novelsource"}, {"from": "Ecchigenre", "to": "Gamesource"}, {"from": "Actiongenre", "to": "Booksource"}, {"from": "Sci-Figenre", "to": "Mangasource"}, {"from": "Actiongenre", "to": "Web mangasource"}, {"from": "Super Powergenre", "to": "Mangasource"}, {"from": "Shoujogenre", "to": "Originalsource"}, {"from": "Sci-Figenre", "to": "Unknownsource"}, {"from": "Kidsgenre", "to": "Musicsource"}, {"from": "Historicalgenre", "to": "Mangasource"}, {"from": "Super Powergenre", "to": "Unknownsource"}, {"from": "Actiongenre", "to": "Othersource"}, {"from": "Seinengenre", "to": "Originalsource"}, {"from": "Shounengenre", "to": "Radiosource"}, {"from": "Dramagenre", "to": "Card gamesource"}, {"from": "Adventuregenre", "to": "Novelsource"}, {"from": "Parodygenre", "to": "Light novelsource"}, {"from": "Militarygenre", "to": "Unknownsource"}, {"from": "Historicalgenre", "to": "Unknownsource"}, {"from": "Supernaturalgenre", "to": "Musicsource"}, {"from": "Joseigenre", "to": "Novelsource"}, {"from": "Demonsgenre", "to": "Picture booksource"}, {"from": "Shoujo Aigenre", "to": "Light novelsource"}, {"from": "Sci-Figenre", "to": "Musicsource"}, {"from": "Historicalgenre", "to": "4-koma mangasource"}, {"from": "Policegenre", "to": "Visual novelsource"}, {"from": "Gamegenre", "to": "Card gamesource"}, {"from": "Vampiregenre", "to": "Originalsource"}, {"from": "Sci-Figenre", "to": "Visual novelsource"}, {"from": "Militarygenre", "to": "Musicsource"}, {"from": "Gamegenre", "to": "Light novelsource"}, {"from": "Ecchigenre", "to": "4-koma mangasource"}, {"from": "Super Powergenre", "to": "Visual novelsource"}, {"from": "Adventuregenre", "to": "Mangasource"}, {"from": "Slice of Lifegenre", "to": "Novelsource"}, {"from": "Dramagenre", "to": "Novelsource"}, {"from": "Shounen Aigenre", "to": "Unknownsource"}, {"from": "Militarygenre", "to": "Visual novelsource"}, {"from": "Parodygenre", "to": "Gamesource"}, {"from": "Dramagenre", "to": "Gamesource"}, {"from": "Magicgenre", "to": "Mangasource"}, {"from": "Ecchigenre", "to": "Digital mangasource"}, {"from": "Adventuregenre", "to": "4-koma mangasource"}, {"from": "Magicgenre", "to": "Unknownsource"}, {"from": "Sci-Figenre", "to": "Originalsource"}, {"from": "Gamegenre", "to": "Novelsource"}, {"from": "Super Powergenre", "to": "Originalsource"}, {"from": "Slice of Lifegenre", "to": "Mangasource"}, {"from": "Romancegenre", "to": "Picture booksource"}, {"from": "Demonsgenre", "to": "Mangasource"}, {"from": "Schoolgenre", "to": "Picture booksource"}, {"from": "Gamegenre", "to": "Gamesource"}, {"from": "Mysterygenre", "to": "Card gamesource"}, {"from": "Carsgenre", "to": "Mangasource"}, {"from": "Musicgenre", "to": "Light novelsource"}, {"from": "Militarygenre", "to": "Originalsource"}, {"from": "Magicgenre", "to": "4-koma mangasource"}, {"from": "Shounen Aigenre", "to": "Visual novelsource"}, {"from": "Demonsgenre", "to": "Unknownsource"}, {"from": "Sportsgenre", "to": "Novelsource"}, {"from": "Mysterygenre", "to": "Light novelsource"}, {"from": "Carsgenre", "to": "Unknownsource"}, {"from": "Sportsgenre", "to": "Gamesource"}, {"from": "Kidsgenre", "to": "Booksource"}, {"from": "Kidsgenre", "to": "Web mangasource"}, {"from": "Slice of Lifegenre", "to": "4-koma mangasource"}, {"from": "Magicgenre", "to": "Visual novelsource"}, {"from": "Supernaturalgenre", "to": "Booksource"}, {"from": "Supernaturalgenre", "to": "Web mangasource"}, {"from": "Dramagenre", "to": "4-koma mangasource"}, {"from": "Sci-Figenre", "to": "Radiosource"}, {"from": "Kidsgenre", "to": "Othersource"}, {"from": "Fantasygenre", "to": "Card gamesource"}, {"from": "Spacegenre", "to": "Card gamesource"}, {"from": "Policegenre", "to": "Web mangasource"}, {"from": "Musicgenre", "to": "Novelsource"}, {"from": "Hentaigenre", "to": "Booksource"}, {"from": "Shounen Aigenre", "to": "Originalsource"}, {"from": "Fantasygenre", "to": "Light novelsource"}, {"from": "Spacegenre", "to": "Light novelsource"}, {"from": "Supernaturalgenre", "to": "Othersource"}, {"from": "Musicgenre", "to": "Gamesource"}, {"from": "Historicalgenre", "to": "Radiosource"}, {"from": "Demonsgenre", "to": "Visual novelsource"}, {"from": "Slice of Lifegenre", "to": "Digital mangasource"}, {"from": "Samuraigenre", "to": "Light novelsource"}, {"from": "Haremgenre", "to": "Light novelsource"}, {"from": "Actiongenre", "to": "Card gamesource"}, {"from": "Mysterygenre", "to": "Gamesource"}, {"from": "Dementiagenre", "to": "Musicsource"}, {"from": "Mechagenre", "to": "Visual novelsource"}, {"from": "Gamegenre", "to": "4-koma mangasource"}, {"from": "Hentaigenre", "to": "Othersource"}, {"from": "Actiongenre", "to": "Light novelsource"}, {"from": "Dementiagenre", "to": "Visual novelsource"}, {"from": "Schoolgenre", "to": "Mangasource"}, {"from": "Magicgenre", "to": "Originalsource"}, {"from": "Romancegenre", "to": "Unknownsource"}, {"from": "Thrillergenre", "to": "Unknownsource"}, {"from": "Sportsgenre", "to": "4-koma mangasource"}, {"from": "Schoolgenre", "to": "Unknownsource"}, {"from": "Spacegenre", "to": "Novelsource"}, {"from": "Demonsgenre", "to": "Originalsource"}, {"from": "Fantasygenre", "to": "Gamesource"}, {"from": "Spacegenre", "to": "Gamesource"}, {"from": "Comedygenre", "to": "Picture booksource"}, {"from": "Parodygenre", "to": "Web mangasource"}, {"from": "Carsgenre", "to": "Originalsource"}, {"from": "Parodygenre", "to": "Booksource"}, {"from": "Samuraigenre", "to": "Gamesource"}, {"from": "Actiongenre", "to": "Novelsource"}, {"from": "Musicgenre", "to": "4-koma mangasource"}, {"from": "Romancegenre", "to": "Musicsource"}, {"from": "Parodygenre", "to": "Othersource"}, {"from": "Actiongenre", "to": "Gamesource"}, {"from": "Schoolgenre", "to": "Musicsource"}, {"from": "Romancegenre", "to": "Visual novelsource"}, {"from": "Thrillergenre", "to": "Visual novelsource"}, {"from": "Vampiregenre", "to": "Picture booksource"}, {"from": "Schoolgenre", "to": "Visual novelsource"}, {"from": "Shoujo Aigenre", "to": "Othersource"}, {"from": "Martial Artsgenre", "to": "Othersource"}, {"from": "Slice of Lifegenre", "to": "Radiosource"}, {"from": "Psychologicalgenre", "to": "Unknownsource"}, {"from": "Carsgenre", "to": "Radiosource"}, {"from": "Horrorgenre", "to": "Picture booksource"}, {"from": "Seinengenre", "to": "Light novelsource"}, {"from": "Mechagenre", "to": "Booksource"}, {"from": "Romancegenre", "to": "Originalsource"}, {"from": "Thrillergenre", "to": "Originalsource"}, {"from": "Mechagenre", "to": "Web mangasource"}, {"from": "Yurigenre", "to": "Othersource"}, {"from": "Schoolgenre", "to": "Originalsource"}, {"from": "Psychologicalgenre", "to": "Musicsource"}, {"from": "Dementiagenre", "to": "Booksource"}, {"from": "Actiongenre", "to": "4-koma mangasource"}, {"from": "Shounengenre", "to": "Visual novelsource"}, {"from": "Comedygenre", "to": "Unknownsource"}, {"from": "Psychologicalgenre", "to": "Visual novelsource"}, {"from": "Kidsgenre", "to": "Card gamesource"}, {"from": "Historicalgenre", "to": "Picture booksource"}, {"from": "Mysterygenre", "to": "Booksource"}, {"from": "Mysterygenre", "to": "Web mangasource"}, {"from": "Shoujogenre", "to": "Musicsource"}, {"from": "Mysterygenre", "to": "Othersource"}, {"from": "Supernaturalgenre", "to": "Light novelsource"}, {"from": "Romancegenre", "to": "Radiosource"}, {"from": "Comedygenre", "to": "Musicsource"}, {"from": "Shoujogenre", "to": "Visual novelsource"}, {"from": "Policegenre", "to": "Light novelsource"}, {"from": "Psychologicalgenre", "to": "Originalsource"}, {"from": "Sci-Figenre", "to": "Light novelsource"}, {"from": "Comedygenre", "to": "Visual novelsource"}, {"from": "Fantasygenre", "to": "Booksource"}, {"from": "Fantasygenre", "to": "Web mangasource"}, {"from": "Super Powergenre", "to": "Light novelsource"}, {"from": "Militarygenre", "to": "Card gamesource"}, {"from": "Horrorgenre", "to": "Unknownsource"}, {"from": "Adventuregenre", "to": "Picture booksource"}, {"from": "Kidsgenre", "to": "Novelsource"}, {"from": "Haremgenre", "to": "Web mangasource"}, {"from": "Militarygenre", "to": "Light novelsource"}, {"from": "Kidsgenre", "to": "Gamesource"}, {"from": "Fantasygenre", "to": "Othersource"}, {"from": "Spacegenre", "to": "Othersource"}, {"from": "Vampiregenre", "to": "Musicsource"}, {"from": "Supernaturalgenre", "to": "Novelsource"}, {"from": "Samuraigenre", "to": "Othersource"}, {"from": "Haremgenre", "to": "Othersource"}, {"from": "Policegenre", "to": "Novelsource"}, {"from": "Supernaturalgenre", "to": "Gamesource"}, {"from": "Vampiregenre", "to": "Visual novelsource"}, {"from": "Hentaigenre", "to": "Novelsource"}, {"from": "Parodygenre", "to": "Card gamesource"}, {"from": "Policegenre", "to": "Gamesource"}, {"from": "Horrorgenre", "to": "Musicsource"}, {"from": "Comedygenre", "to": "Originalsource"}, {"from": "Yaoigenre", "to": "Mangasource"}, {"from": "Horrorgenre", "to": "Visual novelsource"}, {"from": "Slice of Lifegenre", "to": "Picture booksource"}, {"from": "Ecchigenre", "to": "Mangasource"}, {"from": "Shounengenre", "to": "Booksource"}, {"from": "Shounengenre", "to": "Web mangasource"}, {"from": "Shounen Aigenre", "to": "Light novelsource"}, {"from": "Dramagenre", "to": "Picture booksource"}, {"from": "Militarygenre", "to": "Gamesource"}, {"from": "Ecchigenre", "to": "Unknownsource"}, {"from": "Martial Artsgenre", "to": "Light novelsource"}, {"from": "Super Powergenre", "to": "Musicsource"}, {"from": "Shounengenre", "to": "Othersource"}, {"from": "Hentaigenre", "to": "Mangasource"}, {"from": "Kidsgenre", "to": "4-koma mangasource"}, {"from": "Historicalgenre", "to": "Musicsource"}, {"from": "Comedygenre", "to": "Radiosource"}, {"from": "Parodygenre", "to": "Novelsource"}, {"from": "Horrorgenre", "to": "Originalsource"}, {"from": "Joseigenre", "to": "Mangasource"}, {"from": "Shoujogenre", "to": "Booksource"}, {"from": "Shoujogenre", "to": "Web mangasource"}, {"from": "Historicalgenre", "to": "Visual novelsource"}, {"from": "Supernaturalgenre", "to": "4-koma mangasource"}, {"from": "Adventuregenre", "to": "Unknownsource"}, {"from": "Seinengenre", "to": "Booksource"}, {"from": "Joseigenre", "to": "Unknownsource"}, {"from": "Seinengenre", "to": "Web mangasource"}, {"from": "Yaoigenre", "to": "Visual novelsource"}, {"from": "Martial Artsgenre", "to": "Novelsource"}, {"from": "Ecchigenre", "to": "Visual novelsource"}, {"from": "Shoujogenre", "to": "Othersource"}, {"from": "Mechagenre", "to": "Light novelsource"}, {"from": "Martial Artsgenre", "to": "Gamesource"}, {"from": "Seinengenre", "to": "Othersource"}, {"from": "Dementiagenre", "to": "Light novelsource"}, {"from": "Adventuregenre", "to": "Musicsource"}, {"from": "Parodygenre", "to": "Mangasource"}, {"from": "Dramagenre", "to": "Mangasource"}, {"from": "Historicalgenre", "to": "Originalsource"}, {"from": "Vampiregenre", "to": "Web mangasource"}, {"from": "Slice of Lifegenre", "to": "Unknownsource"}, {"from": "Hentaigenre", "to": "Digital mangasource"}, {"from": "Musicgenre", "to": "Picture booksource"}, {"from": "Adventuregenre", "to": "Visual novelsource"}, {"from": "Shoujo Aigenre", "to": "Mangasource"}, {"from": "Dramagenre", "to": "Unknownsource"}, {"from": "Yaoigenre", "to": "Originalsource"}, {"from": "Ecchigenre", "to": "Originalsource"}, {"from": "Magicgenre", "to": "Musicsource"}, {"from": "Mechagenre", "to": "Novelsource"}, {"from": "Shoujo Aigenre", "to": "Unknownsource"}, {"from": "Parodygenre", "to": "4-koma mangasource"}, {"from": "Gamegenre", "to": "Mangasource"}, {"from": "Mechagenre", "to": "Gamesource"}, {"from": "Dementiagenre", "to": "Novelsource"}, {"from": "Slice of Lifegenre", "to": "Musicsource"}, {"from": "Gamegenre", "to": "Unknownsource"}, {"from": "Shoujo Aigenre", "to": "4-koma mangasource"}, {"from": "Samuraigenre", "to": "Card gamesource"}, {"from": "Romancegenre", "to": "Light novelsource"}, {"from": "Thrillergenre", "to": "Light novelsource"}, {"from": "Carsgenre", "to": "Musicsource"}, {"from": "Adventuregenre", "to": "Originalsource"}, {"from": "Schoolgenre", "to": "Light novelsource"}, {"from": "Sportsgenre", "to": "Mangasource"}, {"from": "Mysterygenre", "to": "Novelsource"}, {"from": "Slice of Lifegenre", "to": "Visual novelsource"}, {"from": "Yurigenre", "to": "Mangasource"}, {"from": "Sci-Figenre", "to": "Web mangasource"}, {"from": "Sci-Figenre", "to": "Booksource"}, {"from": "Super Powergenre", "to": "Web mangasource"}, {"from": "Policegenre", "to": "Othersource"}, {"from": "Dramagenre", "to": "Visual novelsource"}, {"from": "Yurigenre", "to": "Unknownsource"}, {"from": "Sportsgenre", "to": "Unknownsource"}, {"from": "Militarygenre", "to": "Booksource"}, {"from": "Historicalgenre", "to": "Booksource"}, {"from": "Sci-Figenre", "to": "Othersource"}, {"from": "Super Powergenre", "to": "Othersource"}, {"from": "Actiongenre", "to": "Picture booksource"}, {"from": "Militarygenre", "to": "Othersource"}, {"from": "Musicgenre", "to": "Mangasource"}, {"from": "Fantasygenre", "to": "Novelsource"}, {"from": "Slice of Lifegenre", "to": "Originalsource"}, {"from": "Mysterygenre", "to": "Mangasource"}, {"from": "Shounengenre", "to": "Card gamesource"}, {"from": "Musicgenre", "to": "Unknownsource"}, {"from": "Sportsgenre", "to": "Musicsource"}, {"from": "Samuraigenre", "to": "Novelsource"}, {"from": "Thrillergenre", "to": "Gamesource"}, {"from": "Haremgenre", "to": "Novelsource"}, {"from": "Dramagenre", "to": "Originalsource"}, {"from": "Shounengenre", "to": "Light novelsource"}, {"from": "Psychologicalgenre", "to": "Light novelsource"}, {"from": "Haremgenre", "to": "Gamesource"}, {"from": "Sportsgenre", "to": "Visual novelsource"}, {"from": "Shounen Aigenre", "to": "Web mangasource"}, {"from": "Fantasygenre", "to": "Mangasource"}, {"from": "Gamegenre", "to": "Originalsource"}, {"from": "Spacegenre", "to": "Mangasource"}, {"from": "Magicgenre", "to": "Booksource"}, {"from": "Magicgenre", "to": "Web mangasource"}, {"from": "Samuraigenre", "to": "Mangasource"}, {"from": "Shoujogenre", "to": "Light novelsource"}, {"from": "Musicgenre", "to": "Visual novelsource"}, {"from": "Fantasygenre", "to": "Unknownsource"}, {"from": "Spacegenre", "to": "Unknownsource"}, {"from": "Shounengenre", "to": "Novelsource"}, {"from": "Dramagenre", "to": "Radiosource"}, {"from": "Sportsgenre", "to": "Originalsource"}, {"from": "Actiongenre", "to": "Mangasource"}, {"from": "Comedygenre", "to": "Light novelsource"}, {"from": "Magicgenre", "to": "Othersource"}, {"from": "Shounengenre", "to": "Gamesource"}, {"from": "Demonsgenre", "to": "Booksource"}, {"from": "Demonsgenre", "to": "Web mangasource"}, {"from": "Fantasygenre", "to": "4-koma mangasource"}, {"from": "Actiongenre", "to": "Unknownsource"}, {"from": "Samuraigenre", "to": "4-koma mangasource"}, {"from": "Haremgenre", "to": "4-koma mangasource"}, {"from": "Demonsgenre", "to": "Othersource"}, {"from": "Carsgenre", "to": "Othersource"}, {"from": "Shoujogenre", "to": "Novelsource"}, {"from": "Musicgenre", "to": "Originalsource"}, {"from": "Vampiregenre", "to": "Light novelsource"}, {"from": "Mechagenre", "to": "Othersource"}, {"from": "Shoujogenre", "to": "Gamesource"}, {"from": "Seinengenre", "to": "Novelsource"}, {"from": "Dementiagenre", "to": "Othersource"}, {"from": "Comedygenre", "to": "Gamesource"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": false,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
