@@ -1,0 +1,5 @@
+label,true_label,confidence,radius,neighbors,grid,threshold
+2,0,0.0,47,8,885,95053
+2,1,0.0,47,8,885,95053
+2,2,0.0,47,8,885,95053
+2,3,0.0,47,8,885,95053

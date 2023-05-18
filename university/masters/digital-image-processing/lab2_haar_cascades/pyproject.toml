@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "lab2-haar-cascades"
+version = "0.1.0"
+description = ""
+authors = ["Foxicution <foxicution@gmail.com>"]
+readme = "README.md"
+packages = [{include = "lab2_haar_cascades"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+opencv-python = "^4.7.0.72"
+pandas = "^1.5.3"
+matplotlib = "^3.7.1"
+
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.1.1"
+ipykernel = "^6.22.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "lab3-face-recognition-method-comparison"
+version = "0.1.0"
+description = ""
+authors = ["Foxicution <foxicution@gmail.com>"]
+readme = "README.md"
+packages = [{include = "lab3_face_recognition_method_comparison"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+opencv-python = "^4.7.0.72"
+pandas = "^1.5.3"
+matplotlib = "^3.7.1"
+opencv-contrib-python = "^4.7.0.72"
+bayesian-optimization = "^1.4.3"
+seaborn = "^0.12.2"
+
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.1.1"
+ipykernel = "^6.22.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
