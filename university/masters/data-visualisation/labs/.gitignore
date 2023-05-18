@@ -1,0 +1,6 @@
+/data/*
+!/data/anime_filtered.csv
+!/data/DailyDelhiClimateTest.csv
+!/data/DailyDelhiClimateTrain.csv
+*__pycache__
+/lab_5/lib
