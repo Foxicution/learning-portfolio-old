@@ -6,7 +6,7 @@ B X
 C Z"""
 
 test "day2 part 1":
-  check day2(input) == 15
+  check day2a(input) == 15
 
 test "day2 part 2":
-  check day2_2(input) == 12
+  check day2b(input) == 12

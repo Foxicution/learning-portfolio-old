@@ -25,7 +25,7 @@ const input = """1000
 
 
 test "day1 part 1":
-  check day1(input) == 24000
+  check day1a(input) == 24000
 
 test "day1 part 2":
-  check day1_2(input) == 45000
+  check day1b(input) == 45000
