@@ -6,8 +6,26 @@
 # To run these tests, simply execute `nimble test`.
 
 import unittest
-import Nimpkg/submodule
+import Solutions/day1
+
+const input = """1000
+2000
+3000
+
+4000
+
+5000
+6000
+
+7000
+8000
+9000
+
+10000"""
 
 
-test "correct welcome":
-  check getWelcomeMessage() == "Hello, World!"
+test "day1 part 1":
+  check day1(input) == 24000
+
+test "day1 part 2":
+  check day1Part2(input) == 45000
