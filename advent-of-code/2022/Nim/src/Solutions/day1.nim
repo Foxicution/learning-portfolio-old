@@ -6,7 +6,7 @@ func prepareInput(input: string): seq[int] =
     ).foldl(a + b))
 
 func day1a*(input: string): int =
-    input.prepareInput().max()
+    input.prepareInput.max
 
 func day1b*(input: string): int =
-    input.prepareInput().sorted(SortOrder.Descending)[0..2].foldl(a + b)
+    input.prepareInput.sorted(SortOrder.Descending)[0..2].foldl(a + b)

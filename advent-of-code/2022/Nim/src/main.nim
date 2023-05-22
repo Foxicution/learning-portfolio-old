@@ -1,12 +1,12 @@
 import Solutions/[day1, day2, day3]
 
 echo "Day 1 solutions"
-echo readFile("./input/1").day1a()
-echo readFile("./input/1").day1b()
+echo "./input/1".readFile.day1a
+echo "./input/1".readFile.day1b
 
 echo "Day 2 solutions"
-echo readFile("./input/2").day2a()
-echo readFile("./input/2").day2b()
+echo "./input/2".readFile.day2a
+echo "./input/2".readFile.day2b
 
 echo "Day 3 solutions"
-echo readFile("./input/3").day3a()
+echo "./input/3".readFile.day3a

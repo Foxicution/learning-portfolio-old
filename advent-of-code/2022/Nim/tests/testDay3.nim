@@ -9,4 +9,4 @@ ttgJtRGJQctTZtZT
 CrZsJsPPZsGzwwsLwLmpwMDw"""
 
 test "day3 part 1":
-  check day3a(input) == 157
+  check input.day3a == 157
