@@ -14,4 +14,4 @@ func day3a*(input: string): int = input.processInput
   .map(letterToPoints
   ).concat().foldl(a + b)
 
-func day3b*(input: string): int = input.processInput.distribute()
+# func day3b*(input: string): int = input.processInput.distribute()
